@@ -16,7 +16,9 @@ usuarioController.getUsuarios = async (req, res) => {
     try {
         const usuariosRef = db.collection('usuario');
         const snapshot = await usuariosRef.get();
-        const documentos = snapshot.docs.map(doc => doc.data());
+        const documentos = snapshot.docs.map(doc => {
+            return { id: doc.id, ...doc.data() }
+        });
         res.json(documentos);
     } catch (error) {
         console.log('Error al obtener los documentos', error);
@@ -37,7 +39,8 @@ usuarioController.getUsuario = async (req, res) => {
         const usuariosRef = db.collection('usuario');
         const snapshot = await usuariosRef.doc(req.params.id).get();
         if (snapshot.exists) {
-            res.json(snapshot.data());
+            const data = { id: snapshot.id, ...snapshot.data() };
+            res.json(data);
         } else {
             res.status(409).json({ error: 'El usuario no existe' });
         }
