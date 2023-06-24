@@ -4,11 +4,25 @@ const router = Router();
 
 // Controladores
 const {
+    getCategorias,
     getCategoria,
-} = require('../controllers/categoria.controllers.js');
+    createCategoria,
+    deleteCategoria
+} = require('../controllers/categoria.controller.js');
 
 
+// Rutas
 
-router.get('/usuarios', getCategoria)
+// OBTENER TODOS LOS USUARIOS
+router.get('/categorias', getCategorias)
+
+// OBTENER UNA CATEGORIA
+router.get('/categorias/:id', getCategoria)
+
+// CREAR UNA CATEGORIA
+router.post('/categorias', createCategoria)
+
+// borrar UNA CATEGORIA
+router.delete('/categorias/:id', deleteCategoria)
 
 module.exports = router;

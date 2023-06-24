@@ -18,8 +18,16 @@ app.use(express.json());
 
 
 
+// HAY QUE VALIDAR LA CONFIGURACION PARA EL JWT
+// VALIDAR TODODS LOS CAMPOS ENTRANTES
+
 // Rutas Api
 app.use(require('./routes/usuario.routes.js'));
+
+app.use(require('./routes/categoria.routes.js'));
+app.use(require('./routes/region.routes.js'));
+app.use(require('./routes/plataforma.routes.js'));
+
 app.use(require('./routes/juego.routes.js'));
 
 
