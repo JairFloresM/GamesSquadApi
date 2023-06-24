@@ -1,6 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
-
+// require('dotenv').config();
 
 // Inicializador 
 const app = express();
@@ -20,6 +20,7 @@ app.use(express.json());
 
 // Rutas Api
 app.use(require('./routes/usuario.routes.js'));
+app.use(require('./routes/juego.routes.js'));
 
 
 
