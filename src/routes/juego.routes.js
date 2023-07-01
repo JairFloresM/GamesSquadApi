@@ -11,13 +11,11 @@ const {
     getJuegos,
     postJuegos,
     postJuegosLlaves,
-    postJuegosImagenes,
-    postJuegosDescripcion,
     getJuego,
     updateJuegos,
     updateJuegosLlaves,
-    updateJuegosImagenes,
-    updateJuegosDescripcion,
+    getJuegoLlavesAleatoria,
+    cambiarEstadoJuego
 } = require('../controllers/juegos.controllers.js');
 
 
@@ -33,6 +31,9 @@ router.get('/juegos', getJuegos)
 // OBTENER JUEGOS
 router.get('/juegos/:id', getJuego)
 
+// LLAVE ALERATORIA
+router.get('/juegos/llave-aleatoria/:id', getJuegoLlavesAleatoria)
+
 
 
 
@@ -46,10 +47,16 @@ router.post('/juegos/subida-llaves', upload1.single('excelFile'), postJuegosLlav
 
 
 // ACTUALIZAR JUEGO
-router.post('/juegos', [upload2.array('images', 4), cargar_imagen], postJuegos)
+router.put('/juegos', [upload2.array('images', 4), cargar_imagen], updateJuegos)
 
 // ACTUALIZAR LLAVES DE JUEGO
-router.post('/juegos/subida-llaves', upload1.single('excelFile'), postJuegosLlaves) // excelFile es el nombre del input
+router.put('/juegos/subida-llaves', upload1.single('excelFile'), updateJuegosLlaves) // excelFile es el nombre del input
+
+
+
+// DESACTIVAR JUEGO
+router.put('/juegos/desactivar/:id', cambiarEstadoJuego)
+
 
 
 
