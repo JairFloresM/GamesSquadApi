@@ -30,6 +30,8 @@ app.use(require('./routes/categoria.routes.js'));
 app.use(require('./routes/region.routes.js'));
 app.use(require('./routes/plataforma.routes.js'));
 app.use(require('./routes/juego.routes.js'));
+app.use(require('./routes/carrito.routes.js'));
+app.use(require('./routes/detalle_compra.routes.js'));
 
 
 
