@@ -25,6 +25,7 @@ cargar_imagen.cargar_imagen = async (req, res, next) => {
 
             imageUrl.push(downloadURL);
         }
+
         req.imageUrl = { data: imageUrl };
 
         next();
