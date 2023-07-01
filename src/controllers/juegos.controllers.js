@@ -1,14 +1,14 @@
 const xlsx = require('xlsx');
-
-
+const fs = require('fs');
+const { leerLlavesExcel } = require('../helpers/juego');
 const juegoController = {};
 
 // Base de datos
-const db = require('../database');
+const { db, storage } = require('../database');
+const { CONNREFUSED } = require('dns');
 
 
-
-// OBTENER JUEGO
+// OBTENER JUEGOS
 juegoController.getJuegos = async (req, res) => {
     try {
         const usuariosRef = db.collection('juego');
@@ -19,34 +19,30 @@ juegoController.getJuegos = async (req, res) => {
             const categoriaRef = db.collection('categoria');
             const plataformaRef = db.collection('plataforma');
             const regionRef = db.collection('region');
-            const imageRef = db.collection('image');
+            const data = doc.data();
 
-
-            for (const element of doc.data().categorias) {
+            for (const element of data.categorias) {
                 const data = await categoriaRef.doc(element).get(); // Obtiene la categoria
                 categorias.push(data.data().titulo);
             }
 
-            const plataformaSnap = await plataformaRef.doc(doc.data().plataforma).get(); // Obtiene la plataforma
-            const plataforma = plataformaSnap.data().descripcion;
 
-            const regionSanp = await regionRef.doc(doc.data().region).get(); // Obtiene la region
+            const plataformaSnap = await plataformaRef.doc(data.plataforma).get(); // Obtiene la plataforma
+            const plataforma = plataformaSnap.data().titulo;
+
+            const regionSanp = await regionRef.doc(data.region).get(); // Obtiene la region
             const region = regionSanp.data().descripcion;
-
-            const imageSnap = await imageRef.where('juego', '==', doc.id).where('isFirst', '==', true).get(); // Obtiene la region
-
-            const image = imageSnap._docs()[0]._fieldsProto.image.stringValue;  // no se porque tuve que hacer esto, pero no me funcionaba de la otra manera
 
             return {
                 id: doc.id,
-                titulo: doc.data().titulo,
-                estado: doc.data().estado,
-                fecha_publicacion: doc.data().fecha_publicacion,
-                estado: doc.data().estado,
+                titulo: data.titulo,
+                estado: data.estado,
+                fecha_publicacion: data.fecha_publicacion,
+                estado: data.estado,
                 plataforma: plataforma,
                 region: region,
-                precio: doc.data().precio,
-                image: image,   // se comenta porque es muy largo el string
+                precio: data.precio,
+                image: data.images[0],
                 categorias
             };
         });
@@ -72,49 +68,34 @@ juegoController.getJuego = async (req, res) => {
         const categorias = [];
 
         if (snapshot.exists) {
-
             const categoriaRef = db.collection('categoria');
             const plataformaRef = db.collection('plataforma');
             const regionRef = db.collection('region');
-            const imageRef = db.collection('image');
-            const descripcionRef = db.collection('descripcion_juego');
+            const data = snapshot.data();
 
-
-
-            for (const element of snapshot.data().categorias) {
+            for (const element of data.categorias) {
                 const data = await categoriaRef.doc(element).get(); // Obtiene la categoria
                 categorias.push(data.data().titulo);
             }
 
-            const plataformaSnap = await plataformaRef.doc(snapshot.data().plataforma).get(); // Obtiene la plataforma
-            const plataforma = plataformaSnap.data().descripcion;
 
-            const regionSanp = await regionRef.doc(snapshot.data().region).get(); // Obtiene la region
+            const plataformaSnap = await plataformaRef.doc(data.plataforma).get(); // Obtiene la plataforma
+            const plataforma = plataformaSnap.data().titulo;
+
+            const regionSanp = await regionRef.doc(data.region).get(); // Obtiene la region
             const region = regionSanp.data().descripcion;
-
-            const imageSnap = await imageRef.where('juego', '==', snapshot.id).get();
-            const images = imageSnap._docs().map(el => el._fieldsProto.image.stringValue);  // no se porque tuve que hacer esto, pero no me funcionaba de la otra manera
-
-
-
-            const descripcionSnap = await descripcionRef.where('juego', '==', snapshot.id).get(); // Obtiene la region
-            const descripcion = descripcionSnap._docs().map(el => {
-                return { descripcion: el._fieldsProto.descripcion_genereal.stringValue, especificaciones: el._fieldsProto.especificaciones.stringValue }
-            });
-
 
             const juego = {
                 id: snapshot.id,
-                titulo: snapshot.data().titulo,
-                estado: snapshot.data().estado,
-                fecha_publicacion: snapshot.data().fecha_publicacion,
-                estado: snapshot.data().estado,
+                titulo: data.titulo,
+                estado: data.estado,
+                fecha_publicacion: data.fecha_publicacion,
+                estado: data.estado,
                 plataforma: plataforma,
                 region: region,
-                precio: snapshot.data().precio,
-                images: images,   // se comenta porque es muy largo el string
-                categorias,
-                descripciones: descripcion
+                precio: data.precio,
+                image: data.images[0],
+                categorias
             };
 
             res.json(juego);
@@ -128,23 +109,26 @@ juegoController.getJuego = async (req, res) => {
 
 }
 
+
+
 // CREAR JUEGO
 juegoController.postJuegos = async (req, res) => {
 
-    const newjuego = req.body;
+    const imagesUrl = req.imageUrl.data;
+    const newjuego = JSON.parse(req.body.data);
+    newjuego.images = imagesUrl
 
-    newjuego.createdAt = new Date();
-    newjuego.updatedAt = new Date();
 
     // Referencia a la colección
     try {
         const usuariosRef = db.collection('juego');
+        // const llavesRef = db.collection('llave');
 
         const juegoCreado = await
             usuariosRef
-                .add(req.body);
+                .add(newjuego);
 
-        res.json({ message: 'Juego creado correctamente', id: juegoCreado.id });
+        res.json({ message: 'Juego creado correctamente', juego: juegoCreado.id });
 
     } catch (error) {
         console.log('Error al crear el documento', error);
@@ -152,10 +136,9 @@ juegoController.postJuegos = async (req, res) => {
     }
 }
 
-// LLAVE DE LOS JUEGOS
+// CREAR LLAVES DE LOS JUEGOS
 juegoController.postJuegosLlaves = async (req, res) => {
     const fileBuffer = req.file.buffer;
-    // console.log(req.body.id);
 
     try {
         const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
@@ -172,7 +155,10 @@ juegoController.postJuegosLlaves = async (req, res) => {
                 // Si no hay más celdas o la celda está vacía, finalizar el bucle
                 break;
             }
-            columnData.push(cell.v);
+            columnData.push({
+                llave: cell.v,
+                estado: 'up'  // up es que no las han usado, down es que ya las usaron
+            });
         }
 
         const llaveRef = db.collection('llave');
@@ -180,8 +166,6 @@ juegoController.postJuegosLlaves = async (req, res) => {
         const newLLave = {
             juego: req.body.id,
             llaves: columnData,
-            createdAt: new Date(),
-            updatedAt: new Date()
         }
 
         await llaveRef.add(newLLave);
@@ -191,51 +175,6 @@ juegoController.postJuegosLlaves = async (req, res) => {
     } catch (error) {
         console.log('Error al leer el archivo de Excel', error);
         res.status(500).json({ error: 'Error al leer el archivo de Excel' });
-    }
-}
-
-// LLAVE DE Las IMAGENES
-juegoController.postJuegosImagenes = async (req, res) => {
-    try {
-        const uploadedImages = req.files;
-        const llaveRef = db.collection('image');
-
-        uploadedImages.forEach(async (image, index) => {
-            // console.log(image);
-            await llaveRef.add(
-                {
-                    juego: req.body.id,
-                    isFirst: index === 0,    // Si es la primera imagen
-                    image: image.buffer.toString('base64'),
-                    createdAt: new Date(),
-                    updatedAt: new Date()
-                }
-            );
-        });
-
-        res.json({ message: 'Imagenes creadas correctamente' });
-    } catch (error) {
-        console.log('Error al procesar las imágenes', error);
-        res.status(500).json({ error: 'Error al procesar las imágenes' });
-    }
-}
-
-// CREAR DESCRIPCION DE JUEGO
-juegoController.postJuegosDescripcion = async (req, res) => {
-
-    try {
-        req.body.createdAt = new Date();
-        req.body.updatedAt = new Date();
-        const descripcionRef = db.collection('descripcion_juego');
-
-        await descripcionRef.add(
-            req.body
-        );
-
-        res.json({ message: 'Descripciones creadas correctamente' });
-    } catch (error) {
-        console.log('Error al procesar las descripciones', error);
-        res.status(500).json({ error: 'Error al procesar las descripciones' });
     }
 }
 

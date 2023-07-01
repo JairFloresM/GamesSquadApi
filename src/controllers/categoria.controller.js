@@ -1,7 +1,7 @@
 const categoriaController = {};
 
 // Base de datos
-const db = require('../database');
+const { db } = require('../database');
 
 
 
@@ -49,10 +49,10 @@ categoriaController.getCategoria = async (req, res) => {
 
 // OBTENER UNA CATEGORIA
 categoriaController.createCategoria = async (req, res) => {
-    const newCategoria = req.body;
 
-    newCategoria.createdAt = new Date();
-    newCategoria.updatedAt = new Date();
+    const imagesUrl = req.imageUrl.data;
+    const newCategoria = JSON.parse(req.body.data);
+    newCategoria.images = imagesUrl
 
     console.log(newCategoria)
 
@@ -71,6 +71,41 @@ categoriaController.createCategoria = async (req, res) => {
     }
 }
 
+
+categoriaController.updateCategoria = async (req, res) => {
+
+    const imagesUrl = req.imageUrl.data;
+    const categoria = JSON.parse(req.body.data);
+
+    const updateCategoria = {
+        titulo: categoria.titulo,
+        descripcion: categoria.descripcion,
+        images: imagesUrl,
+        estado: categoria.estado,
+    }
+
+    const categoriaRef = db.collection('categoria');
+
+    // Referencia a la colección
+    try {
+        console.log(req.params.id)
+        const snapshot = await categoriaRef.doc(req.params.id).get();
+
+        if (!snapshot.exists) {
+            res.status(409).json({ error: 'La categoria no existe' });
+        }
+
+        await categoriaRef
+            .doc(req.params.id)
+            .update(updateCategoria);
+
+        res.json({ message: 'Categoria actualizada correctamente' });
+
+    } catch (error) {
+        console.log('Error al crear el documento', error);
+        res.status(500).json({ error: 'Error al crear el documento' });
+    }
+}
 
 
 // BORRAR UNA CATEGORIA

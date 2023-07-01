@@ -1,30 +1,25 @@
 // Firebase
 const admin = require('firebase-admin');
+const { getStorage } = require('firebase-admin/storage')
+
 const serviceAccount = require('../firebase-permissions.json');
 
 
 // Configuración de Firebase
-admin.initializeApp({
+ admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
+    storageBucket: 'gs://gamesquad-4424b.appspot.com/',
     databaseURL: ''
 });
 
 
 // Referencia a la base de datos
-const db = admin.firestore();
+const firebase = {};
+
+firebase.db = admin.firestore();
+firebase.storage = admin.storage();
 
 
 
-// Configuracion con supabase
 
-// const { createClient } = require('@supabase/supabase-js');
-
-
-// const supabaseUrl = process.env.SUPABASE_URL;
-// const supabaseKey = process.env.SUPABASE_ANON_KEY;
-
-
-// const supabase = createClient(supabaseUrl, supabaseKey);
-
-
-module.exports = db;
+module.exports = firebase;

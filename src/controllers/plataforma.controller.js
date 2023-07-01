@@ -1,11 +1,11 @@
 const plataformaController = {};
 
 // Base de datos
-const db = require('../database');
+const { db } = require('../database');
 
 
 
-// OBTENER TODAS LAS REGIONES
+// OBTENER TODAS LAS PLATAFORMA
 plataformaController.getPlataformas = async (req, res) => {
 
     // Referencia a la colección
@@ -25,7 +25,7 @@ plataformaController.getPlataformas = async (req, res) => {
 
 
 
-// OBTENER UNA REGION
+// OBTENER UNA PLATAFORMA
 plataformaController.getPlataforma = async (req, res) => {
 
     // Referencia a la colección
@@ -47,12 +47,12 @@ plataformaController.getPlataforma = async (req, res) => {
 
 
 
-// OBTENER UNA REGION
+// OBTENER UNA PLATAFORMA
 plataformaController.createPlataforma = async (req, res) => {
-    const newPlataforma = req.body;
 
-    newPlataforma.createdAt = new Date();
-    newPlataforma.updatedAt = new Date();
+    const imagesUrl = req.imageUrl.data;
+    const newPlataforma = JSON.parse(req.body.data);
+    newPlataforma.images = imagesUrl
 
     console.log(newPlataforma)
 
@@ -73,7 +73,46 @@ plataformaController.createPlataforma = async (req, res) => {
 
 
 
-// BORRAR UNA REGION
+// ACTUALIZAR UNA PLATAFORMA
+plataformaController.updatePlataforma = async (req, res) => {
+
+    const imagesUrl = req.imageUrl.data;
+    const plataforma = JSON.parse(req.body.data);
+
+    const updatePlataforma = {
+        titulo: plataforma.titulo,
+        images: imagesUrl,
+        estado: plataforma.estado,
+    }
+
+    const plataformaRef = db.collection('plataforma');
+
+
+    // Referencia a la colección
+    try {
+        const snapshot = await plataformaRef.doc(req.params.id).get();
+
+        if (!snapshot.exists) {
+            res.status(409).json({ error: 'La plataforma no existe' });
+        }
+
+
+        await plataformaRef
+            .doc(req.params.id)
+            .update(updatePlataforma);
+
+        res.json({ message: 'Plataforma actualizada correctamente' });
+
+    } catch (error) {
+        console.log('Error al crear el documento', error);
+        res.status(500).json({ error: 'Error al crear el documento' });
+    }
+}
+
+
+
+
+// BORRAR UNA PLATAFORMA
 plataformaController.deletePlataforma = async (req, res) => {
 
     console.log(req.params.id)
