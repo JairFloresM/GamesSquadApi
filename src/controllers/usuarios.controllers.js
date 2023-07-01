@@ -1,7 +1,7 @@
 const usuarioController = {};
 
 // Base de datos
-const db = require('../database');
+const { db } = require('../database');
 
 
 

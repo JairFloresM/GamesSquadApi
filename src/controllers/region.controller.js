@@ -1,7 +1,7 @@
 const regionController = {};
 
 // Base de datos
-const db = require('../database');
+const { db } = require('../database');
 
 
 
@@ -51,11 +51,6 @@ regionController.getRegion = async (req, res) => {
 regionController.createRegion = async (req, res) => {
     const newRegion = req.body;
 
-    newRegion.createdAt = new Date();
-    newRegion.updatedAt = new Date();
-
-    console.log(newRegion)
-
     // Referencia a la colección
     try {
         await db
@@ -71,6 +66,37 @@ regionController.createRegion = async (req, res) => {
     }
 }
 
+
+
+regionController.updateRegion = async (req, res) => {
+
+
+    const updateRegion = req.body;
+
+    const regionRef = db.collection('region');
+
+
+    // Referencia a la colección
+    try {
+        const snapshot = await regionRef.doc(req.params.id).get();
+
+        if (!snapshot.exists) {
+            res.status(409).json({ error: 'La region no existe' });
+        }
+
+        await db
+            .collection('region')
+            .doc(req.params.id)
+            .update(updateRegion);
+
+        res.json({ message: 'Region creada correctamente' });
+
+    } catch (error) {
+        console.log('Error al crear el documento', error);
+        res.status(500).json({ error: 'Error al crear el documento' });
+    }
+
+}
 
 
 // BORRAR UNA REGION

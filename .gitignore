@@ -1,3 +1,4 @@
 node_modules/
 firebase-permissions.json
 .env
+nodemon.json

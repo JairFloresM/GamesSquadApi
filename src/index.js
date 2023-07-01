@@ -1,6 +1,9 @@
 const express = require('express');
 const morgan = require('morgan');
-// require('dotenv').config();
+const path = require('path');
+
+// const supabase = require('./supabase.js');
+require('dotenv').config();
 
 // Inicializador 
 const app = express();
@@ -23,13 +26,15 @@ app.use(express.json());
 
 // Rutas Api
 app.use(require('./routes/usuario.routes.js'));
-
 app.use(require('./routes/categoria.routes.js'));
 app.use(require('./routes/region.routes.js'));
 app.use(require('./routes/plataforma.routes.js'));
-
 app.use(require('./routes/juego.routes.js'));
 
+
+
+// PUBLIC
+app.use(express.static(path.join(__dirname, 'public')))
 
 
 
