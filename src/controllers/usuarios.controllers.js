@@ -25,8 +25,6 @@ usuarioController.getUsuarios = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los documentos' });
     }
 
-
-
 }
 
 
@@ -58,8 +56,6 @@ usuarioController.createUsuario = async (req, res) => {
     const newUser = req.body;
 
     newUser.correo = newUser.correo.toLowerCase();
-    newUser.createdAt = new Date();
-    newUser.updatedAt = new Date();
 
 
     // Referencia a la colección
@@ -95,6 +91,7 @@ usuarioController.updateUsuario = async (req, res) => {
         apellido: req.body.apellido,
         // correo: req.body.correo.toLowerCase(),
         // contraseña: req.body.contraseña,
+        // tipo_usuario: req.body.tipo_usuario,
         updatedAt: new Date(),
         edad: req.body.edad,
         avatar: req.body.avatar,
