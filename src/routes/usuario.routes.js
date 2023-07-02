@@ -1,6 +1,8 @@
 const { Router } = require('express');
 const router = Router();
 
+const { verifyToken, isAdmin } = require('../middlewares/authJwt')
+
 
 // Controladores
 const {
@@ -8,25 +10,29 @@ const {
     getUsuario,
     createUsuario,
     updateUsuario,
-    deleteUsuario
+    deleteUsuario,
+    inicioSesion
 } = require('../controllers/usuarios.controllers.js');
 
 
 // Rutas
 
 // OBTENER TODOS LOS USUARIOS
-router.get('/usuarios', getUsuarios)
+router.get('/usuarios', [verifyToken, isAdmin], getUsuarios)
 
 // OBETENER UN USUARIO
-router.get('/usuarios/:id', getUsuario)
+router.get('/usuarios/:id', [verifyToken, isAdmin], getUsuario)
 
 // CREAR UN USUARIO
 router.post('/usuarios', createUsuario)
 
 // ACTUALIZAR UN USUARIO
-router.put('/usuarios', updateUsuario)
+router.put('/usuarios', [verifyToken], updateUsuario)
 
 // ELIMINAR UN USUARIO
-router.delete('/usuarios/:id', deleteUsuario)
+router.delete('/usuarios/:id', [verifyToken, isAdmin], deleteUsuario)
+
+// INICIAR SESIÓN
+router.post('/login', inicioSesion)
 
 module.exports = router;

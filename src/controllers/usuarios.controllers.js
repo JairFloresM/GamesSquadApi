@@ -2,6 +2,7 @@ const usuarioController = {};
 
 // Base de datos
 const { db } = require('../database');
+const jwt = require('jsonwebtoken');
 
 
 
@@ -104,7 +105,7 @@ usuarioController.updateUsuario = async (req, res) => {
         const usuariosRef = db.collection('usuario');
         const snapshot = await usuariosRef.doc(req.body.id).get();
 
-        if (snapshot.exists) {
+        if (!snapshot.exits) {
             await db
                 .collection('usuario')
                 .doc(req.body.id)
@@ -131,7 +132,7 @@ usuarioController.deleteUsuario = async (req, res) => {
         const usuariosRef = db.collection('usuario');
         const snapshot = await usuariosRef.doc(req.params.id).get();
 
-        if (snapshot.exists) {
+        if (snapshot.empty) {
             await db
                 .collection('usuario')
                 .doc(req.params.id)
@@ -147,6 +148,33 @@ usuarioController.deleteUsuario = async (req, res) => {
         res.status(500).json({ error: 'Error al eliminar el documento' });
     }
 }
+
+
+usuarioController.inicioSesion = async (req, res) => {
+    const { correo, contraseña } = req.body;
+
+    const usuariosRef = db.collection('usuario');
+    const snapshot = await usuariosRef.where('correo', '==', correo).get();
+
+    if (snapshot.empty)
+        return res.status(400).json({ message: 'Usuario y/o contraseña incorrectos' })
+
+    const documentos = snapshot.docs.map(doc => { return { id: doc.id, ...doc.data() } });
+
+
+    if (documentos[0].contraseña !== contraseña)
+        return res.status(401).json({ message: 'Usuario y/o contraseña incorrectos' })
+
+    const token = jwt.sign({ id: documentos[0].id }, process.env.JWT, { expiresIn: '1h' });
+
+    res.status(200).json({
+        token
+    })
+}
+
+
+
+
 
 
 module.exports = usuarioController;
