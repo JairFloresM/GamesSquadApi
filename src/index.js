@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
+const bodyParser = require('body-parser');
 
 // const supabase = require('./supabase.js');
 require('dotenv').config();
@@ -17,6 +18,7 @@ app.set('port', 5000);
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(bodyParser.json());
 
 
 
@@ -32,6 +34,7 @@ app.use(require('./routes/plataforma.routes.js'));
 app.use(require('./routes/juego.routes.js'));
 app.use(require('./routes/carrito.routes.js'));
 app.use(require('./routes/detalle_compra.routes.js'));
+app.use(require('./routes/generales.routes.js'));
 
 
 
