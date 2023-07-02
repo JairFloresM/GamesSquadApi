@@ -2,3 +2,4 @@ node_modules/
 firebase-permissions.json
 .env
 nodemon.json
+src/public/images

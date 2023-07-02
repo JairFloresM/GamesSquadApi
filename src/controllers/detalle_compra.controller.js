@@ -93,7 +93,7 @@ detalleCompra.getDetalleCompra = async (req, res) => {
                 }
             })
             const resolvedDocumentos = await Promise.all(juegos);
-            console.log(resolvedDocumentos);
+
             return {
                 ...detalle,
                 juegos: resolvedDocumentos
