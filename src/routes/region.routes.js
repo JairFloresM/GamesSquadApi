@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const router = Router();
 
+const { verifyToken, isAdmin } = require('../middlewares/authJwt')
 
 // Controladores
 const {
@@ -15,19 +16,17 @@ const {
 // Rutas
 
 // OBTENER TODOS LAS REGIONES
-router.get('/region', getRegiones)
+router.get('/region', [verifyToken, isAdmin], getRegiones)
 
 // OBTENER UNA REGION
-router.get('/region/:id', getRegion)
+router.get('/region/:id', [verifyToken, isAdmin], getRegion)
 
 // CREAR UNA REGION
-router.post('/region', createRegion)
+router.post('/region', [verifyToken, isAdmin], createRegion)
 
 // ACTUALIZAR UNA REGION
-router.put('/region/:id', updateRegion)
+router.put('/region/:id', [verifyToken, isAdmin], updateRegion)
 
 
-// borrar UNA REGION
-// router.delete('/region/:id', deleteRegion)
 
 module.exports = router;

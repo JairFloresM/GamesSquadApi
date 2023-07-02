@@ -6,6 +6,8 @@ const { cargar_imagen } = require('../middlewares/cargar_imagen');
 const multer = require('multer');
 const multerConfig = require('../config/multer.config')
 
+const { verifyToken, isAdmin } = require('../middlewares/authJwt')
+
 
 // Controladores
 const {
@@ -25,16 +27,16 @@ const upload2 = multer(multerConfig);
 // Rutas
 
 // OBTENER TODOS LAS PLATAFIORMAS
-router.get('/plataforma', getPlataformas)
+router.get('/plataforma', [verifyToken, isAdmin], getPlataformas)
 
 // OBTENER UNA PLATAFORMA
-router.get('/plataforma/:id', getPlataforma)
+router.get('/plataforma/:id', [verifyToken, isAdmin], getPlataforma)
 
 // CREAR UNA PLATAFORMA
-router.post('/plataforma', [upload2.array('images', 1), cargar_imagen], createPlataforma)
+router.post('/plataforma', [verifyToken, isAdmin, upload2.array('images', 1), cargar_imagen], createPlataforma)
 
 // ACTUALIZAR UNA PLATAFORMA
-router.put('/plataforma/:id', [upload2.array('images', 1), cargar_imagen], updatePlataforma)
+router.put('/plataforma/:id', [verifyToken, isAdmin, upload2.array('images', 1), cargar_imagen], updatePlataforma)
 
 
 // borrar UNA PLATAFORMA
