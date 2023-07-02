@@ -1,11 +1,11 @@
-const generalesControllers = {};
+const generalController = {};
 
 
 const { db } = require('../database');
 const index = require('../config/angolia.config.js');
 
 
-generalesControllers.buscadorJuegos = async (req, res) => {
+generalController.buscadorJuegos = async (req, res) => {
     try {
         const param1 = req.params.juego
 
@@ -70,7 +70,7 @@ generalesControllers.buscadorJuegos = async (req, res) => {
 }
 
 
-generalesControllers.buscadorJuegosCategoria = async (req, res) => {
+generalController.buscadorJuegosCategoria = async (req, res) => {
     try {
         const param1 = req.params.categoria
 
@@ -135,5 +135,63 @@ generalesControllers.buscadorJuegosCategoria = async (req, res) => {
     }
 }
 
+generalController.juegosMasVendidos = async (req, res) => {
+    try {
+        const querySnapshot = await db.collection('carrito')
+            .where('estado', '==', true)
+            .get();
 
-module.exports = generalesControllers;
+        const ventasPorJuego = {};
+
+        querySnapshot.forEach(doc => {
+            const juegoId = doc.data().juego;
+            const cantidad = doc.data().cantidad;
+
+            if (ventasPorJuego[juegoId]) {
+                ventasPorJuego[juegoId] += cantidad;
+            } else {
+                ventasPorJuego[juegoId] = cantidad;
+            }
+        });
+
+        const ventasOrdenadas = Object.entries(ventasPorJuego).sort((a, b) => b[1] - a[1]);
+
+        const juegosMasVendidos = ventasOrdenadas.map(async (juego) => {
+            const idJuego = juego[0];
+
+            const juegoRef = db.collection('juego');
+            const snapshot = await juegoRef.doc(idJuego).get();
+
+            const categoriaRef = db.collection('categoria');
+            const data = snapshot.data();
+            const categorias = [];
+
+
+            for (const element of data.categorias) {
+                const data = await categoriaRef.doc(element).get(); // Obtiene la categoria
+                categorias.push(data.data().titulo);
+            }
+
+            return {
+                id: idJuego,
+                copias_vendidas: juego[1],
+                titulo: data.titulo,
+                image: data.images[0],
+                categorias: categorias.slice(0, 2)
+            };
+        });
+
+        const resolvedDocumentos = await Promise.all(juegosMasVendidos);
+
+
+        res.json(resolvedDocumentos);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener los juego' });
+    }
+}
+
+
+
+module.exports = generalController;

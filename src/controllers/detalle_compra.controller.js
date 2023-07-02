@@ -9,16 +9,18 @@ detalleCompra.addDetalleCompra = async (req, res) => {
 
     try {
         let llaveUp = null
+        let llavesAll = null
         let precioTotal = 0
 
         const carritoRef = db.collection('carrito');
-        const carritoSnap = await carritoRef.where('usuario', '==', id).get()
+        const carritoSnap = await carritoRef.where('usuario', '==', id).where('estado', '==', false).get()
         const carritoJuego = carritoSnap.docs.map(doc => { return { id: doc.id, ...doc.data() } });
 
         const llaves = carritoJuego.map(async (juego) => {
             const llaveRef = db.collection('llave');
             const llaveSnap = await llaveRef.where('juego', '==', juego.juego).get()
             const llaveData = llaveSnap.docs.map(doc => { return { id: doc.id, ...doc.data() } });
+            llavesAll = llaveData.map((el) => el.llaves)
             llaveUp = llaveData.map((el) => el.llaves.filter(llave => llave.estado == 'up'))
 
             const llavesFinal = []
@@ -31,12 +33,26 @@ detalleCompra.addDetalleCompra = async (req, res) => {
                 i++
             }
 
-            precioTotal += juego.precio
+
+            // ASIGINAR ESTADO DE LLAVES
+            const llavesCombinadas = llavesAll.map(desactualizado => {
+                const actualizado = llavesRevueltas.find(actualizado => actualizado.llave === desactualizado.llave);
+
+                if (actualizado) {
+                    return { ...desactualizado, estado: actualizado.estado };
+                } else {
+                    return desactualizado;
+                }
+            });
+
+
+            precioTotal += parseFloat(juego.precio)
 
             // ACTUALIZAR ESTADO DE LLAVES
             db.collection('llave').doc(llaveData[0].id).update({
-                llaves: llavesRevueltas
+                llaves: llavesCombinadas[0]
             })
+
 
             // ACTUALIZAR ESTADO
             db.collection('carrito').doc(juego.id).update({
@@ -59,6 +75,7 @@ detalleCompra.addDetalleCompra = async (req, res) => {
         }
 
         const detalleRef = db.collection('detalle_compra');
+
 
         await detalleRef.add(detalle);
 
