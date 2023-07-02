@@ -5,7 +5,8 @@ const router = Router();
 // Controladores
 const {
     buscadorJuegos,
-    buscadorJuegosCategoria
+    buscadorJuegosCategoria,
+    juegosMasVendidos
 } = require('../controllers/generales.controllers.js');
 
 
@@ -17,6 +18,8 @@ router.get('/buscador/juego/:juego', buscadorJuegos)
 // BUSCADOR DE JUEGOS POR CATEGORIA
 router.get('/buscador/categoria/:categoria', buscadorJuegosCategoria)
 
+// JUEGOS MAS VENDIDOS
+router.get('/mas-vendidos', juegosMasVendidos)
 
 
 
