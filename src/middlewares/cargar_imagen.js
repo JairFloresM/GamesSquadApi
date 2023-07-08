@@ -21,7 +21,9 @@ cargar_imagen.cargar_imagen = async (req, res, next) => {
             });
 
             fs.unlinkSync(image.path);
-            const downloadURL = `https://storage.googleapis.com/${bucket.name}/${storagePath}`;
+            // const downloadURL = `https://storage.googleapis.com/${bucket.name}/${storagePath}`;
+            const downloadURL = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${carpeta}%2F${image.filename}?alt=media`;
+
 
             imageUrl.push(downloadURL);
         }

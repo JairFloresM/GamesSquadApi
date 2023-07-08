@@ -11,7 +11,7 @@ const app = express();
 
 // Configuraciones
 app.set('port', 5000);
-
+app.use(cors());
 
 
 // Middlewares
