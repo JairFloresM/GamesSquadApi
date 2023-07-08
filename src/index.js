@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 // const supabase = require('./supabase.js');
 require('dotenv').config();
