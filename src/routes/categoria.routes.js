@@ -5,6 +5,7 @@ const { cargar_imagen } = require('../middlewares/cargar_imagen');
 const multer = require('multer');
 const multerConfig = require('../config/multer.config')
 
+const { verifyToken, isAdmin } = require('../middlewares/authJwt')
 
 // Controladores
 const {
@@ -23,16 +24,16 @@ const upload2 = multer(multerConfig);
 // Rutas
 
 // OBTENER TODOS LOS USUARIOS
-router.get('/categorias', getCategorias)
+router.get('/categorias', [verifyToken], getCategorias)
 
 // OBTENER UNA CATEGORIA
-router.get('/categorias/:id', getCategoria)
+router.get('/categorias/:id', [verifyToken], getCategoria)
 
 // CREAR UNA CATEGORIA
-router.post('/categorias', [upload2.array('images', 1), cargar_imagen], createCategoria)
+router.post('/categorias', [verifyToken, isAdmin, upload2.array('images', 1), cargar_imagen], createCategoria)
 
 // ACTUALIZAR CATEGORIA
-router.put('/categorias/:id', [upload2.array('images', 1), cargar_imagen], updateCategoria)
+router.put('/categorias/:id', [verifyToken, isAdmin, upload2.array('images', 1), cargar_imagen], updateCategoria)
 
 
 // borrar UNA CATEGORIA
