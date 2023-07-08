@@ -126,7 +126,8 @@ juegoController.getJuego = async (req, res) => {
 // CREAR JUEGO
 juegoController.postJuegos = async (req, res) => {
 
-    const imagesUrl = req.imageUrl.data;
+    const imagesUrl = req.imageUrl.data
+    console.log(req.body.data);
     const newjuego = JSON.parse(req.body.data);
     newjuego.images = imagesUrl
 
