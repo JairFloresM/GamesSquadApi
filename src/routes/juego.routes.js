@@ -18,7 +18,8 @@ const {
     updateJuegos,
     updateJuegosLlaves,
     getJuegoLlavesAleatoria,
-    cambiarEstadoJuego
+    cambiarEstadoJuego,
+    getAllJuegos
 } = require('../controllers/juegos.controllers.js');
 
 
@@ -28,8 +29,11 @@ const upload2 = multer(multerConfig);
 
 
 // Rutas
-// OBTENER JUEGOS
+// OBTENER JUEGOS ACTIVOS
 router.get('/juegos', [verifyToken,], getJuegos)
+
+// OBTENER TODOS LOS JUEGOS
+router.get('/juegos/admin', [verifyToken,], getAllJuegos)
 
 // OBTENER JUEGOS
 router.get('/juegos/:id', [verifyToken], getJuego)

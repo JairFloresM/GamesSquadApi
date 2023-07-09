@@ -6,6 +6,59 @@ const juegoController = {};
 // Base de datos
 const { db } = require('../database');
 
+
+// OBTENER TODOS LOS JUEGOS
+
+juegoController.getAllJuegos = async (req, res) => {
+    try {
+        const usuariosRef = db.collection('juego');
+        const snapshot = await usuariosRef.get();
+
+        const documentos = snapshot.docs.map(async (doc) => {
+            const categorias = [];
+            const categoriaRef = db.collection('categoria');
+            const plataformaRef = db.collection('plataforma');
+            const regionRef = db.collection('region');
+            const data = doc.data();
+
+            for (const element of data.categorias) {
+                const data = await categoriaRef.doc(element).get(); // Obtiene la categoria
+                categorias.push(data.data().titulo);
+            }
+
+
+            const plataformaSnap = await plataformaRef.doc(data.plataforma).get(); // Obtiene la plataforma
+            const plataforma = plataformaSnap.data().titulo;
+
+            const regionSanp = await regionRef.doc(data.region).get(); // Obtiene la region
+            const region = regionSanp.data().descripcion;
+
+            return {
+                id: doc.id,
+                titulo: data.titulo,
+                estado: data.estado,
+                // fecha_publicacion: data.fecha_publicacion,
+                estado: data.estado,
+                plataforma: plataforma,
+                region: region,
+                precio: data.precio,
+                image: data.images[0],
+                categorias
+            };
+        });
+
+        // Esperar a que se resuelvan todas las promesas dentro del array
+        const resolvedDocumentos = await Promise.all(documentos);
+
+        res.json(resolvedDocumentos);
+
+    } catch (error) {
+        console.log('Error al obtener los documentos', error);
+        res.status(500).json({ error: 'Error al obtener los documentos' });
+    }
+}
+
+
 // OBTENER JUEGOS
 juegoController.getJuegos = async (req, res) => {
     try {
@@ -35,7 +88,7 @@ juegoController.getJuegos = async (req, res) => {
                 id: doc.id,
                 titulo: data.titulo,
                 estado: data.estado,
-                fecha_publicacion: data.fecha_publicacion,
+                // fecha_publicacion: data.fecha_publicacion,
                 estado: data.estado,
                 plataforma: plataforma,
                 region: region,
@@ -80,17 +133,17 @@ juegoController.getJuego = async (req, res) => {
         const llaveRef = db.collection('llave');
 
 
-        for (const element of data.categorias) {
-            const data = await categoriaRef.doc(element).get(); // Obtiene la categoria
-            categorias.push(data.data().titulo);
-        }
+        // for (const element of data.categorias) {
+        //     const data = await categoriaRef.doc(element).get(); // Obtiene la categoria
+        //     categorias.push(data.data().titulo);
+        // }
 
 
-        const plataformaSnap = await plataformaRef.doc(data.plataforma).get(); // Obtiene la plataforma
-        const plataforma = plataformaSnap.data().titulo;
+        // const plataformaSnap = await plataformaRef.doc(data.plataforma).get(); // Obtiene la plataforma
+        // const plataforma = plataformaSnap.data().titulo;
 
-        const regionSanp = await regionRef.doc(data.region).get(); // Obtiene la region
-        const region = regionSanp.data().descripcion;
+        // const regionSanp = await regionRef.doc(data.region).get(); // Obtiene la region
+        // const region = regionSanp.data().descripcion;
 
 
         const llavesSnap = await llaveRef.where('juego', '==', id).get();
@@ -103,15 +156,15 @@ juegoController.getJuego = async (req, res) => {
             cantidad_disponible: cantidadLlaves,
             titulo: data.titulo,
             estado: data.estado,
-            fecha_publicacion: data.fecha_publicacion,
+            // fecha_publicacion: data.fecha_publicacion,
             estado: data.estado,
-            plataforma: plataforma,
-            region: region,
+            plataforma: data.plataforma,
+            region: data.region,
             precio: data.precio,
             image: data.images,
             especificaciones: data.especificaciones,
             descripcion_general: data.descripcion_genereal,
-            categorias
+            categorias: data.categorias
         };
 
         res.json(juego);
@@ -200,16 +253,16 @@ juegoController.updateJuegos = async (req, res) => {
 
     const juego = {
         titulo: updatejuego.titulo,
-        fecha_publicacion: updatejuego.fecha_publicacion,
+        // fecha_publicacion: updatejuego.fecha_publicacion,
         estado: updatejuego.estado,
         plataforma: updatejuego.plataforma,
         region: updatejuego.region,
         precio: updatejuego.precio,
         images: [...updatejuego.images, ...imagesUrl],
-        categorias: updatejuego.categorias
+        categorias: updatejuego.categorias,
+        descripcion_genereal: updatejuego.descripcion_genereal,
+        especificaciones: updatejuego.especificaciones
     }
-
-    console.log(juego);
 
     // Referencia a la colección
     try {
@@ -254,17 +307,16 @@ juegoController.updateJuegosLlaves = async (req, res) => {
         }
 
         const llaveRef = db.collection('llave');
+        const llavesSnap = await llaveRef.where('juego', '==', req.body.id).get();
 
         const updateLlave = {
             juego: req.body.id,
             llaves: columnData,
         }
 
-        console.log(updateLlave);
-
         await
             llaveRef
-                .doc(req.body.id_doc)
+                .doc(llavesSnap.docs[0].id)
                 .update(updateLlave);
 
         res.json({ message: 'Llaves actualizadas correctamente' });
