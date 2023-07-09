@@ -20,7 +20,10 @@ cargar_imagen.cargar_imagen = async (req, res, next) => {
                 destination: storagePath
             });
 
-            fs.unlinkSync(image.path);
+            setTimeout(() => {
+                fs.unlinkSync(image.path);
+            }, 1000); // Espera 5 segundos antes de eliminar la imagen
+
             // const downloadURL = `https://storage.googleapis.com/${bucket.name}/${storagePath}`;
             const downloadURL = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${carpeta}%2F${image.filename}?alt=media`;
 
