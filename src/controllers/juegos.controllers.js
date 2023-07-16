@@ -283,9 +283,9 @@ juegoController.updateJuegos = async (req, res) => {
 
 // ACTUALIZAR LLAVE DE JUEGOS
 juegoController.updateJuegosLlaves = async (req, res) => {
-    const fileBuffer = req.file.buffer;
 
     try {
+        const fileBuffer = req.file.buffer;
         const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];

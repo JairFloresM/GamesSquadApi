@@ -15,13 +15,33 @@ categoriaController.getCategorias = async (req, res) => {
         const documentos = snapshot.docs.map(doc => {
             return { id: doc.id, ...doc.data() }
         });
-        res.json(documentos);
+
+        const filteredData = documentos.filter(item => item.estado === true);
+
+        res.json(filteredData);
     } catch (error) {
         console.log('Error al obtener los documentos', error);
         res.status(500).json({ error: 'Error al obtener los documentos' });
     }
 }
 
+
+// OBTENER TODAS LAS CATEGORIAS DEL ADMIN
+categoriaController.getAllCategorias = async (req, res) => {
+
+    try {
+        const categoriaRef = db.collection('categoria');
+        const snapshot = await categoriaRef.get();
+        const documentos = snapshot.docs.map(doc => {
+            return { id: doc.id, ...doc.data() }
+        });
+        res.json(documentos);
+    } catch (error) {
+        console.log('Error al obtener los documentos', error);
+        res.status(500).json({ error: 'Error al obtener los documentos' });
+    }
+
+}
 
 
 
@@ -77,10 +97,15 @@ categoriaController.updateCategoria = async (req, res) => {
     const imagesUrl = req.imageUrl.data;
     const categoria = JSON.parse(req.body.data);
 
+    const imageFinal = categoria.images ? categoria.images : imagesUrl;
+    console.log(categoria.images)
+    console.log(imagesUrl)
+    console.log(imageFinal)
+
     const updateCategoria = {
         titulo: categoria.titulo,
         descripcion: categoria.descripcion,
-        images: imagesUrl,
+        images: imageFinal,
         estado: categoria.estado,
     }
 
@@ -104,6 +129,33 @@ categoriaController.updateCategoria = async (req, res) => {
     } catch (error) {
         console.log('Error al crear el documento', error);
         res.status(500).json({ error: 'Error al crear el documento' });
+    }
+}
+
+
+
+categoriaController.cambiarEstadoCategoria = async (req, res) => {
+    try {
+        const id = req.params.id;
+        console.log(id)
+        const categoria = db.collection('categoria');
+        const snapshot = await categoria.doc(id).get();
+
+        if (!snapshot.exists)
+            res.status(409).json({ error: 'La categoria no existe' });
+
+        const data = snapshot.data().estado == true ? { estado: false } : { estado: true };
+
+        await
+            categoria
+                .doc(id)
+                .update(data);
+
+        res.json({ message: 'Se cambio el estado de la categoria' });
+
+    } catch (error) {
+        console.log('Error al obtener los documentos', error);
+        res.status(500).json({ error: 'Error al obtener la categoria' });
     }
 }
 

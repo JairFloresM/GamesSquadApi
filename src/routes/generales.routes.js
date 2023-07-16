@@ -6,7 +6,8 @@ const router = Router();
 const {
     buscadorJuegos,
     buscadorJuegosCategoria,
-    juegosMasVendidos
+    juegosMasVendidos,
+    juegosMasRecientes
 } = require('../controllers/generales.controllers.js');
 
 
@@ -21,6 +22,8 @@ router.get('/buscador/categoria/:categoria', buscadorJuegosCategoria)
 // JUEGOS MAS VENDIDOS
 router.get('/mas-vendidos', juegosMasVendidos)
 
+// JUEGOS MAS VENDIDOS
+router.get('/mas-nuevos', juegosMasRecientes)
 
 
 module.exports = router;

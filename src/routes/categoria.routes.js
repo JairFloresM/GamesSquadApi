@@ -13,7 +13,9 @@ const {
     getCategoria,
     createCategoria,
     deleteCategoria,
-    updateCategoria
+    updateCategoria,
+    getAllCategorias,
+    cambiarEstadoCategoria
 } = require('../controllers/categoria.controller.js');
 
 
@@ -26,6 +28,9 @@ const upload2 = multer(multerConfig);
 // OBTENER TODOS LOS USUARIOS
 router.get('/categorias', [verifyToken], getCategorias)
 
+// OBTENER TODAS LAS CATEGORIAS ADMIN
+router.get('/categorias/admin', [verifyToken, isAdmin], getAllCategorias)
+
 // OBTENER UNA CATEGORIA
 router.get('/categorias/:id', [verifyToken], getCategoria)
 
@@ -35,6 +40,10 @@ router.post('/categorias', [verifyToken, isAdmin, upload2.array('images', 1), ca
 // ACTUALIZAR CATEGORIA
 router.put('/categorias/:id', [verifyToken, isAdmin, upload2.array('images', 1), cargar_imagen], updateCategoria)
 
+
+
+// CAMBIAR ESTADO CATEGORIA
+router.put('/categorias/desactivar/:id', [verifyToken, isAdmin], cambiarEstadoCategoria)
 
 // borrar UNA CATEGORIA
 // router.delete('/categorias/:id', deleteCategoria)

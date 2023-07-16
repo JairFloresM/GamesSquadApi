@@ -183,13 +183,77 @@ generalController.juegosMasVendidos = async (req, res) => {
 
         const resolvedDocumentos = await Promise.all(juegosMasVendidos);
 
+        // ultimos 5 documentos
+        const ultimosDocumentos = resolvedDocumentos.slice(0, 5);
 
-        res.json(resolvedDocumentos);
+
+        res.json(ultimosDocumentos);
 
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al obtener los juego' });
     }
+}
+
+
+generalController.juegosMasRecientes = async (req, res) => {
+    try {
+
+        const usuariosRef = db.collection('juego');
+        const snapshot = await usuariosRef.where('estado', '==', true).get();
+
+        const documentos = snapshot.docs.map(async (doc) => {
+            const categorias = [];
+            const categoriaRef = db.collection('categoria');
+            const plataformaRef = db.collection('plataforma');
+            const regionRef = db.collection('region');
+            const data = doc.data();
+
+            for (const element of data.categorias) {
+                const data = await categoriaRef.doc(element).get(); // Obtiene la categoria
+                categorias.push(data.data().titulo);
+            }
+
+
+            const plataformaSnap = await plataformaRef.doc(data.plataforma).get(); // Obtiene la plataforma
+            const plataforma = plataformaSnap.data().titulo;
+
+            const regionSanp = await regionRef.doc(data.region).get(); // Obtiene la region
+            const region = regionSanp.data().descripcion;
+
+            const timestamp = doc._updateTime
+
+            return {
+                id: doc.id,
+                titulo: data.titulo,
+                estado: data.estado,
+                // fecha_publicacion: data.fecha_publicacion,
+                estado: data.estado,
+                plataforma: plataforma,
+                region: region,
+                precio: data.precio,
+                image: data.images[0],
+                categorias,
+                createdAt: timestamp.toDate()
+            };
+        });
+
+        // Esperar a que se resuelvan todas las promesas dentro del array
+        const resolvedDocumentos = await Promise.all(documentos);
+
+        // Ordenar los documentos por fecha de creacion
+        resolvedDocumentos.sort((a, b) => b.createdAt - a.createdAt);
+
+        // ultimos 5 documentos
+        const ultimosDocumentos = resolvedDocumentos.slice(0, 5);
+
+        res.json(ultimosDocumentos);
+
+    } catch (error) {
+        console.log('Error al obtener los documentos', error);
+        res.status(500).json({ error: 'Error al obtener los documentos' });
+    }
+
 }
 
 
