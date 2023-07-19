@@ -7,7 +7,6 @@ const { db } = require('../database');
 
 // OBTENER TODAS LAS CATEGORIAS
 categoriaController.getCategorias = async (req, res) => {
-
     // Referencia a la colección
     try {
         const categoriaRef = db.collection('categoria');

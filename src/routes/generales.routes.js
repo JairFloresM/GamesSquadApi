@@ -10,20 +10,21 @@ const {
     juegosMasRecientes
 } = require('../controllers/generales.controllers.js');
 
+const { verifyToken, isAdmin } = require('../middlewares/authJwt')
 
 // Rutas
 
 // BUSCADOR DE JUEGOS
-router.get('/buscador/juego/:juego', buscadorJuegos)
+router.get('/buscador/juego/:juego', [verifyToken], buscadorJuegos)
 
 // BUSCADOR DE JUEGOS POR CATEGORIA
-router.get('/buscador/categoria/:categoria', buscadorJuegosCategoria)
+router.get('/buscador/categoria/:categoria', [verifyToken], buscadorJuegosCategoria)
 
 // JUEGOS MAS VENDIDOS
-router.get('/mas-vendidos', juegosMasVendidos)
+router.get('/mas-vendidos', [verifyToken], juegosMasVendidos)
 
 // JUEGOS MAS VENDIDOS
-router.get('/mas-nuevos', juegosMasRecientes)
+router.get('/mas-nuevos', [verifyToken], juegosMasRecientes)
 
 
 module.exports = router;

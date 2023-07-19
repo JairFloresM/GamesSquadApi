@@ -15,7 +15,7 @@ const {
 // Rutas
 
 // OBTENER CARRITO
-router.get('/carrito/:id', getCarrito)
+router.get('/carrito', getCarrito)
 
 // AGREGAR JUEGO AL CARRITO
 router.post('/carrito', addJuego)

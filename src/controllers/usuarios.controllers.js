@@ -53,14 +53,11 @@ usuarioController.getUsuario = async (req, res) => {
 
 // CREAR UN USUARIO
 usuarioController.createUsuario = async (req, res) => {
-
-    const newUser = req.body;
-
-    newUser.correo = newUser.correo.toLowerCase();
-
-
     // Referencia a la colección
     try {
+        const newUser = req.body;
+
+        newUser.correo = newUser.correo.toLowerCase();
         const usuariosRef = db.collection('usuario');
         const snapshot = await usuariosRef.where('correo', '==', newUser.correo).get();
         const documentos = snapshot.docs.map(doc => doc.data());
@@ -93,7 +90,6 @@ usuarioController.updateUsuario = async (req, res) => {
         // correo: req.body.correo.toLowerCase(),
         // contraseña: req.body.contraseña,
         // tipo_usuario: req.body.tipo_usuario,
-        updatedAt: new Date(),
         edad: req.body.edad,
         avatar: req.body.avatar,
     }
@@ -166,7 +162,7 @@ usuarioController.inicioSesion = async (req, res) => {
         return res.status(401).json({ message: 'Usuario y/o contraseña incorrectos' })
 
     const token = jwt.sign({ id: documentos[0].id }, process.env.JWT, { expiresIn: '1h' });
-
+    console.log(token);
     res.status(200).json({
         token
     })

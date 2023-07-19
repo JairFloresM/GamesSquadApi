@@ -5,9 +5,12 @@ const { db } = require('../database');
 
 
 detalleCompra.addDetalleCompra = async (req, res) => {
-    const { id } = req.params;
 
     try {
+        const token = req.headers['x-access-token'];
+        const decode = jwt.verify(token, process.env.JWT);
+        const id = decode.id;
+
         let llaveUp = null
         let llavesAll = null
         let precioTotal = 0
@@ -88,10 +91,12 @@ detalleCompra.addDetalleCompra = async (req, res) => {
 }
 
 detalleCompra.getDetalleCompra = async (req, res) => {
-    const { id } = req.params;
 
     // Referencia a la colección
     try {
+        const token = req.headers['x-access-token'];
+        const decode = jwt.verify(token, process.env.JWT);
+        const id = decode.id;
         const detalleRef = db.collection('detalle_compra');
         const juegoRef = db.collection('juego');
 

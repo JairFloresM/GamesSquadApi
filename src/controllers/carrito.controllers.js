@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken')
+
 const carritoControllers = {}
 
 
@@ -5,15 +7,17 @@ const carritoControllers = {}
 const { db } = require('../database');
 
 
-// SI EL ESTADODEL CARRITO ES FALSO QUIERE DECIR QUE AÚN NO SE HA COMPRADO
+// SI EL ESTADO DEL CARRITO ES FALSO QUIERE DECIR QUE AÚN NO SE HA COMPRADO
 
 carritoControllers.getCarrito = async (req, res) => {
 
-    const usuarioId = req.params.id
-
     try {
+        const token = req.headers['x-access-token'];
+        const decode = jwt.verify(token, process.env.JWT);
+        userId = decode.id;
+
         const usuariosRef = db.collection('carrito');
-        const snapshot = await usuariosRef.where('usuario', '==', usuarioId).where('estado', '==', false).get();
+        const snapshot = await usuariosRef.where('usuario', '==', userId).where('estado', '==', false).get();
         const data = snapshot.docs.map(async (doc) => {
             const data = await doc.data();
             const juego = await db.collection('juego').doc(data.juego).get();
