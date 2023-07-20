@@ -12,10 +12,10 @@ const {
 // Rutas
 
 // OBTENER DETALLE COMPRA
-router.get('/detalle-compra/:id', getDetalleCompra)
+router.get('/detalle-compra', getDetalleCompra)
 
 // AGREGAR CARRITO
-router.post('/detalle-compra/:id', addDetalleCompra)
+router.post('/detalle-compra', addDetalleCompra)
 
 
 

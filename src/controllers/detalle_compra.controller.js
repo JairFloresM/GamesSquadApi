@@ -1,7 +1,7 @@
 const detalleCompra = {}
 
 const { db } = require('../database');
-
+const jwt = require('jsonwebtoken');
 
 
 detalleCompra.addDetalleCompra = async (req, res) => {
