@@ -8,7 +8,8 @@ const {
     sumarCantidadJuego,
     restarCantidadJuego,
     deleteJuego,
-    addJuego
+    addJuego,
+    getCarritoIds
 } = require('../controllers/carrito.controllers.js');
 
 
@@ -16,6 +17,9 @@ const {
 
 // OBTENER CARRITO
 router.get('/carrito', getCarrito)
+
+// OBTENER IDS DEL CARRITO
+router.get('/carrito/ids', getCarritoIds)
 
 // AGREGAR JUEGO AL CARRITO
 router.post('/carrito', addJuego)

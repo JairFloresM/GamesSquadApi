@@ -3,6 +3,8 @@ const generalController = {};
 
 const { db } = require('../database');
 const index = require('../config/angolia.config.js');
+const jwt = require('jsonwebtoken')
+
 
 
 generalController.buscadorJuegos = async (req, res) => {
@@ -255,6 +257,60 @@ generalController.juegosMasRecientes = async (req, res) => {
     }
 
 }
+
+generalController.categoriasMasVendidas = async (req, res) => {
+    try {
+
+        const carritoRef = db.collection('carrito');
+
+        const snapshot = await carritoRef.where('estado', '==', true).get();
+        const data = snapshot.docs.map(async (doc) => {
+            const data = await doc.data();
+            const juego = await db.collection('juego').doc(data.juego).get();
+            const juegoData = juego.data();
+
+            const categoriasVal = juegoData.categorias
+
+            return [...categoriasVal];
+        });
+
+        const resolvedData = await Promise.all(data);
+
+        const flattenedArray = resolvedData.flat();
+
+        const idCounter = {};
+        for (const id of flattenedArray) {
+            if (id in idCounter) {
+                idCounter[id]++;
+            } else {
+                idCounter[id] = 1;
+            }
+        }
+
+        const sortedIdCounter = Object.entries(idCounter).sort((a, b) => b[1] - a[1]);
+
+        const topSixIds = sortedIdCounter.slice(0, 6);
+
+        const categoriaRef = db.collection('categoria');
+
+
+        const catMasVendidas = [];
+        for (const pair of topSixIds) {
+
+            const data = await categoriaRef.doc(pair[0]).get();
+            const catData = data.data();
+
+            catMasVendidas.push({ id: data.id, ...catData })
+        }
+
+        res.json(catMasVendidas);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener las categorias' });
+    }
+}
+
 
 
 

@@ -7,7 +7,8 @@ const {
     buscadorJuegos,
     buscadorJuegosCategoria,
     juegosMasVendidos,
-    juegosMasRecientes
+    juegosMasRecientes,
+    categoriasMasVendidas
 } = require('../controllers/generales.controllers.js');
 
 const { verifyToken, isAdmin } = require('../middlewares/authJwt')
@@ -25,6 +26,9 @@ router.get('/mas-vendidos', [verifyToken], juegosMasVendidos)
 
 // JUEGOS MAS VENDIDOS
 router.get('/mas-nuevos', [verifyToken], juegosMasRecientes)
+
+// CATEGORIAS MAS VENDIDAS
+router.get('/categorias-mas-vendidas', [verifyToken], categoriasMasVendidas)
 
 
 module.exports = router;

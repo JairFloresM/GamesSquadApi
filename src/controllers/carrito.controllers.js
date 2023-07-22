@@ -48,6 +48,35 @@ carritoControllers.getCarrito = async (req, res) => {
     }
 }
 
+carritoControllers.getCarritoIds = async (req, res) => {
+
+    try {
+        const token = req.headers['x-access-token'];
+        const decode = jwt.verify(token, process.env.JWT);
+        userId = decode.id;
+
+        const usuariosRef = db.collection('carrito');
+        const snapshot = await usuariosRef.where('usuario', '==', userId).where('estado', '==', false).get();
+        const data = snapshot.docs.map(async (doc) => {
+            const data = await doc.data();
+            const juego = await db.collection('juego').doc().get();
+            const juegoData = juego.data();
+
+            return {
+                id_juego: data.juego,
+            }
+        });
+
+        const resolvedData = await Promise.all(data);
+
+        res.json(resolvedData);
+
+    } catch (error) {
+        console.log('Error al obtener los documentos', error);
+        res.status(500).json({ error: 'Error al obtener los documentos' });
+    }
+}
+
 carritoControllers.addJuego = async (req, res) => {
 
 
