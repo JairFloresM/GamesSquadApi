@@ -2,14 +2,17 @@ const detalleCompra = {}
 
 const { db } = require('../database');
 const jwt = require('jsonwebtoken');
+const paypal = require('@paypal/checkout-server-sdk');
 
 
 detalleCompra.addDetalleCompra = async (req, res) => {
 
     try {
+        const orderId = req.body.order;
         const token = req.headers['x-access-token'];
         const decode = jwt.verify(token, process.env.JWT);
         const id = decode.id;
+        console.log(id);
 
         let llaveUp = null
         let llavesAll = null
@@ -23,9 +26,9 @@ detalleCompra.addDetalleCompra = async (req, res) => {
             const llaveRef = db.collection('llave');
             const llaveSnap = await llaveRef.where('juego', '==', juego.juego).get()
             const llaveData = llaveSnap.docs.map(doc => { return { id: doc.id, ...doc.data() } });
+
             llavesAll = llaveData.map((el) => el.llaves)
             llaveUp = llaveData.map((el) => el.llaves.filter(llave => llave.estado == 'up'))
-
             const llavesFinal = []
             llavesRevueltas = llaveUp[0].sort(() => Math.random() - 0.5);
 
@@ -35,7 +38,6 @@ detalleCompra.addDetalleCompra = async (req, res) => {
                 llavesRevueltas[i].estado = 'down'
                 i++
             }
-
 
             // ASIGINAR ESTADO DE LLAVES
             const llavesCombinadas = llavesAll.map(desactualizado => {
@@ -74,15 +76,17 @@ detalleCompra.addDetalleCompra = async (req, res) => {
         const detalle = {
             usuario: id,
             juegos: resolvedDocumentos,
-            precio: precioTotal
+            precio: precioTotal * 0.07,
+            paypalorder: orderId
         }
+
+        console.log(detalle);
 
         const detalleRef = db.collection('detalle_compra');
 
-
         await detalleRef.add(detalle);
 
-        res.json({ mensaje: 'Se agregaron los juegos al detalle', detalle });
+        res.json({ mensaje: 'Se agregaron los juegos al detalle' });
 
     } catch (error) {
         console.log('Error al agregar los juegos al detalle', error);
