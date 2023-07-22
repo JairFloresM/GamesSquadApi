@@ -70,6 +70,8 @@ juegoController.getJuegos = async (req, res) => {
             const categoriaRef = db.collection('categoria');
             const plataformaRef = db.collection('plataforma');
             const regionRef = db.collection('region');
+            const llaveRef = db.collection('llave');
+
             const data = doc.data();
 
             for (const element of data.categorias) {
@@ -84,8 +86,14 @@ juegoController.getJuegos = async (req, res) => {
             const regionSanp = await regionRef.doc(data.region).get(); // Obtiene la region
             const region = regionSanp.data().descripcion;
 
+            const llavesSnap = await llaveRef.where('juego', '==', doc.id).get();
+            const llaves = llavesSnap.docs[0].data();
+
+            const cantidadLlaves = llaves.llaves.filter(llave => llave.estado == 'up').length;
+
             return {
                 id: doc.id,
+                cantidad_disponible: cantidadLlaves,
                 titulo: data.titulo,
                 estado: data.estado,
                 // fecha_publicacion: data.fecha_publicacion,
