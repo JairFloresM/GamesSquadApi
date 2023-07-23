@@ -164,7 +164,9 @@ usuarioController.inicioSesion = async (req, res) => {
     const token = jwt.sign({ id: documentos[0].id }, process.env.JWT, { expiresIn: '1h' });
     console.log(token);
     res.status(200).json({
-        token
+        token,
+        nombre: documentos[0].nombre,
+        role: documentos[0].tipo_usuario
     })
 }
 
